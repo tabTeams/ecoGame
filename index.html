@@ -78,6 +78,10 @@ button:disabled {
 #restartBtn {
     background-color: #28a745;
 }
+#shareBtn {
+    background-color: #17a2b8;
+    color: white;
+}
 /* Style for correct/incorrect answers */
 .correct {
     background-color: #d4edda !important;
@@ -103,6 +107,7 @@ button:disabled {
     </div>
     <div id="explanation" aria-live="polite"></div>
     <button id="nextBtn" class="hidden">ถัดไป</button>
+    <button id="shareBtn" class="hidden">แชร์คะแนน</button>
     <button id="restartBtn" class="hidden">เล่นใหม่</button>
 </div>
 
@@ -305,6 +310,7 @@ button:disabled {
     const choicesBtns = document.querySelectorAll(".choice");
     const explanationDiv = document.getElementById("explanation");
     const nextBtn = document.getElementById("nextBtn");
+    const shareBtn = document.getElementById("shareBtn");
     const restartBtn = document.getElementById("restartBtn");
     
     const correctSound = document.getElementById("correctSound");
@@ -322,15 +328,16 @@ button:disabled {
         return array;
     }
 
-    function startGame() {
+    function startGame(startLevel = 1) {
         questions = shuffleArray([...allQuestions]);
         currentQuestionIndex = 0;
-        currentLevel = 1;
+        currentLevel = startLevel;
         consecutiveCorrect = 0;
         totalCorrectAnswers = 0;
         totalIncorrectAnswers = 0;
         totalQuestionsAnswered = 0;
         restartBtn.classList.add("hidden");
+        shareBtn.classList.add("hidden");
         updateStatus();
         loadQuestion();
     }
@@ -359,6 +366,7 @@ button:disabled {
         });
         explanationDiv.textContent = "";
         nextBtn.classList.add("hidden");
+        shareBtn.classList.add("hidden");
     }
 
     function checkAnswer(selectedAnswer) {
@@ -373,7 +381,6 @@ button:disabled {
             totalCorrectAnswers++;
             selectedBtn.classList.add("correct");
             
-            // สุ่มข้อความให้กำลังใจ
             let message = correctMessages[Math.min(consecutiveCorrect - 1, correctMessages.length - 1)];
             if (consecutiveCorrect >= correctMessages.length) {
                  message = correctMessages[correctMessages.length - 1];
@@ -403,12 +410,12 @@ button:disabled {
             selectedBtn.classList.add("incorrect");
             choicesBtns[q.newAnswer].classList.add("correct");
             
-            // สุ่มข้อความให้กำลังใจ
             const randomWrongMessage = wrongMessages[Math.floor(Math.random() * wrongMessages.length)];
             explanationDiv.textContent = `${randomWrongMessage} คำตอบที่ถูกต้องคือ: ${q.shuffledChoices[q.newAnswer]}. ${q.explanation}`;
             wrongSound.play();
             
             restartBtn.classList.remove("hidden");
+            shareBtn.classList.remove("hidden");
         }
         updateStatus();
     }
@@ -430,6 +437,7 @@ button:disabled {
     function endGame(isWin) {
         choicesBtns.forEach(b => b.classList.add("hidden"));
         nextBtn.classList.add("hidden");
+        shareBtn.classList.remove("hidden");
         
         let summaryText;
         if (isWin) {
@@ -444,6 +452,24 @@ button:disabled {
         explanationDiv.textContent = summaryText;
         restartBtn.classList.remove("hidden");
     }
+    
+    function shareScore() {
+        let shareText = `ฉันไปถึงเลเวล ${currentLevel} และตอบถูก ${totalCorrectAnswers} ข้อ จากทั้งหมด ${totalQuestionsAnswered} ข้อ ในเกมตอบคำถามเศรษฐศาสตร์มหภาค! ลองมาแข่งกันดูสิ!`;
+
+        const shareData = {
+            title: 'เกมตอบคำถามเศรษฐศาสตร์มหภาค',
+            text: shareText,
+            url: window.location.href
+        };
+
+        if (navigator.share) {
+            navigator.share(shareData)
+                .then(() => console.log('คะแนนถูกแชร์เรียบร้อย'))
+                .catch((error) => console.log('การแชร์ล้มเหลว', error));
+        } else {
+            alert(shareText);
+        }
+    }
 
     choicesBtns.forEach((btn, index) => {
         btn.addEventListener("click", () => checkAnswer(index));
@@ -454,7 +480,10 @@ button:disabled {
         loadQuestion();
     });
 
-    restartBtn.addEventListener("click", startGame);
+    shareBtn.addEventListener("click", shareScore);
+    restartBtn.addEventListener("click", () => {
+        startGame(currentLevel);
+    });
 
     // Initialize the game
     startGame();
