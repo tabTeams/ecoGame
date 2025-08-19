@@ -281,6 +281,14 @@ button:disabled {
         }
     ];
 
+    const correctMessages = [
+        "เยี่ยมมาก!", "ถูกต้อง! สุดยอดไปเลย!", "สุดยอด! คุณตอบถูกอีกแล้ว!", "เก่งมาก! ไปต่อเลย!", "สุดยอดเลย! คุณทำได้ดีมาก!"
+    ];
+
+    const wrongMessages = [
+        "ไม่เป็นไร ลองใหม่ได้!", "ไม่ถูก แต่คุณทำได้ดีที่สุดแล้ว!", "พยายามอีกครั้งนะ!", "สู้ๆ! พลาดครั้งนี้ไม่เป็นไร!", "ลองทบทวนดูอีกทีนะ!"
+    ];
+
     const questionsPerLevel = 10;
     const maxLevels = 3;
 
@@ -288,6 +296,9 @@ button:disabled {
     let currentQuestionIndex = 0;
     let currentLevel = 1;
     let consecutiveCorrect = 0;
+    let totalCorrectAnswers = 0;
+    let totalIncorrectAnswers = 0;
+    let totalQuestionsAnswered = 0;
 
     const statusDiv = document.getElementById("status");
     const questionBox = document.getElementById("questionBox");
@@ -316,6 +327,9 @@ button:disabled {
         currentQuestionIndex = 0;
         currentLevel = 1;
         consecutiveCorrect = 0;
+        totalCorrectAnswers = 0;
+        totalIncorrectAnswers = 0;
+        totalQuestionsAnswered = 0;
         restartBtn.classList.add("hidden");
         updateStatus();
         loadQuestion();
@@ -350,13 +364,24 @@ button:disabled {
     function checkAnswer(selectedAnswer) {
         const q = questions[currentQuestionIndex];
         choicesBtns.forEach(b => b.disabled = true);
+        totalQuestionsAnswered++;
         
         const selectedBtn = choicesBtns[selectedAnswer];
 
         if (selectedAnswer === q.newAnswer) {
             consecutiveCorrect++;
+            totalCorrectAnswers++;
             selectedBtn.classList.add("correct");
-            explanationDiv.textContent = "ถูกต้อง! " + q.explanation;
+            
+            // สุ่มข้อความให้กำลังใจ
+            let message = correctMessages[Math.min(consecutiveCorrect - 1, correctMessages.length - 1)];
+            if (consecutiveCorrect >= correctMessages.length) {
+                 message = correctMessages[correctMessages.length - 1];
+            } else {
+                 message = correctMessages[consecutiveCorrect - 1];
+            }
+            
+            explanationDiv.textContent = `${message} ${q.explanation}`;
             correctSound.play();
             
             if (consecutiveCorrect === questionsPerLevel) {
@@ -366,16 +391,24 @@ button:disabled {
                     setTimeout(() => levelUp(), 1500);
                 }
             } else {
-                nextBtn.classList.remove("hidden");
+                setTimeout(() => {
+                    currentQuestionIndex++;
+                    loadQuestion();
+                    updateStatus();
+                }, 2000); 
             }
         } else {
+            consecutiveCorrect = 0;
+            totalIncorrectAnswers++;
             selectedBtn.classList.add("incorrect");
             choicesBtns[q.newAnswer].classList.add("correct");
-            explanationDiv.textContent = "ตอบผิด! คำตอบที่ถูกต้องคือ: " + q.shuffledChoices[q.newAnswer] + ". " + q.explanation;
+            
+            // สุ่มข้อความให้กำลังใจ
+            const randomWrongMessage = wrongMessages[Math.floor(Math.random() * wrongMessages.length)];
+            explanationDiv.textContent = `${randomWrongMessage} คำตอบที่ถูกต้องคือ: ${q.shuffledChoices[q.newAnswer]}. ${q.explanation}`;
             wrongSound.play();
-            setTimeout(() => {
-                endGame(false);
-            }, 1500); // Wait for wrongSound to finish
+            
+            restartBtn.classList.remove("hidden");
         }
         updateStatus();
     }
@@ -391,23 +424,24 @@ button:disabled {
         setTimeout(() => {
             loadQuestion();
             updateStatus();
-        }, 3000); // Give player time to see the message
+        }, 3000); 
     }
 
     function endGame(isWin) {
         choicesBtns.forEach(b => b.classList.add("hidden"));
         nextBtn.classList.add("hidden");
         
+        let summaryText;
         if (isWin) {
             questionBox.textContent = `ยินดีด้วย! คุณชนะเกมแล้ว!`;
-            explanationDiv.textContent = `คุณทำคะแนนได้ ${currentLevel} เลเวล`;
+            summaryText = `คุณตอบถูก ${totalCorrectAnswers} ข้อ จากทั้งหมด ${totalQuestionsAnswered} ข้อ และไปถึงเลเวลสุดท้ายคือ ${currentLevel} 🏆`;
             victorySound.play();
         } else {
             questionBox.textContent = `ไม่ผ่าน! เกมโอเวอร์`;
-            explanationDiv.textContent = `คุณไปถึงเลเวล ${currentLevel} และตอบถูกต่อเนื่อง ${consecutiveCorrect} ข้อ`;
+            summaryText = `คุณตอบถูก ${totalCorrectAnswers} ข้อ และตอบผิด ${totalIncorrectAnswers} ข้อ จากทั้งหมด ${totalQuestionsAnswered} ข้อ คุณไปถึงเลเวล ${currentLevel} 😥`;
             failureSound.play();
         }
-
+        explanationDiv.textContent = summaryText;
         restartBtn.classList.remove("hidden");
     }
 
