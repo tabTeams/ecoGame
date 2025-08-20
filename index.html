@@ -390,6 +390,9 @@ let questionsAnsweredInLevel = 0;
 let correctAnswersInLevel = 0;
 let incorrectAnswersInLevel = 0;
 let consecutiveCorrect = 0;
+// เพิ่มตัวแปรสำหรับคะแนนรวม
+let totalCorrectAnswers = 0;
+let totalQuestionsAnswered = 0;
 
 // ปุ่มเริ่ม/ตัวเลือก/แชร์/รีสตาร์ท/ถัดไป
 document.getElementById("startBtn").addEventListener("click", initializeGame);
@@ -409,11 +412,13 @@ function initializeGame(){
   gameArea.classList.remove("hidden");
   levelInfo.classList.remove("hidden");
   currentLevel = 1;
+  totalCorrectAnswers = 0; // รีเซ็ตคะแนนรวมเมื่อเริ่มเกมใหม่
+  totalQuestionsAnswered = 0; // รีเซ็ตคำถามที่ตอบไปทั้งหมดเมื่อเริ่มเกมใหม่
   startLevel();
 }
 function startLevel(){
   levelLabel.textContent = currentLevel;
-  chapterName.textContent = ""; // **แก้ไข: ซ่อนชื่อบท**
+  chapterName.textContent = "";
   questionsAnsweredInLevel = 0;
   correctAnswersInLevel = 0;
   incorrectAnswersInLevel = 0;
@@ -452,9 +457,11 @@ function loadQuestion(){
 function checkAnswer(selectedIndex){
   choicesBtns.forEach(b=>b.disabled=true);
   questionsAnsweredInLevel++;
+  totalQuestionsAnswered++;
   const isCorrect = (selectedIndex===currentQuestion._newAnswer);
   if(isCorrect){
     correctAnswersInLevel++;
+    totalCorrectAnswers++; // เพิ่มคะแนนรวม
     consecutiveCorrect++;
     choicesBtns[selectedIndex].classList.add("correct");
     explanationDiv.textContent = `${consecutiveCorrect===1?"ถูกต้อง!":"เยี่ยมมาก!"} ${currentQuestion.explanation||""}`;
@@ -465,7 +472,7 @@ function checkAnswer(selectedIndex){
     choicesBtns[selectedIndex].classList.add("incorrect");
     choicesBtns[currentQuestion._newAnswer].classList.add("correct");
     const answerText = currentQuestion._shuffled[currentQuestion._newAnswer];
-    explanationDiv.textContent = `ยังไม่ถูก คำตอบที่ถูกคือ: ${answerText}. ${currentQuestion.explanation||""}`;
+    explanationDiv.textContent = `ยังไม่ถูกครับ/ค่ะ คำตอบที่ถูกคือ: ${answerText}. ${currentQuestion.explanation||""}`;
     try{wrongSound.play();}catch(_){}
   }
   updateStatus();
@@ -481,7 +488,8 @@ function checkAnswer(selectedIndex){
 function summarizeLevel(){
   choicesBtns.forEach(b=>b.disabled=true);
   let summaryText="";
-  if(correctAnswersInLevel>=questionsPerLevel){
+  // เปลี่ยนเงื่อนไขการผ่านเลเวล: สามารถตอบผิดได้ไม่เกิน 3 ข้อ
+  if(incorrectAnswersInLevel <= maxIncorrectAnswers){
     questionBox.textContent = `ผ่านเลเวล ${currentLevel}! 🎉`;
     summaryText = `คุณตอบถูก ${correctAnswersInLevel} ข้อ จาก ${questionsPerLevel} ข้อในเลเวลนี้!`;
     try{levelUpSound.play();}catch(_){}
@@ -512,6 +520,7 @@ function endGame(isWin){
   nextBtn.classList.add("hidden");
   restartBtn.classList.remove("hidden");
   shareBtn.classList.remove("hidden");
+  
   let finalMessage="";
   if(isWin){
     finalMessage = `ยินดีด้วย! คุณตอบคำถามครบทุกเลเวลและชนะเกมแล้ว! 🏆`;
@@ -520,11 +529,13 @@ function endGame(isWin){
     finalMessage = `เกมโอเวอร์! คุณไปถึงเลเวล ${currentLevel} 😥`;
     try{failureSound.play();}catch(_){}
   }
+  
+  // เพิ่มการสรุปคะแนนรวม
   questionBox.textContent = finalMessage;
-  explanationDiv.textContent = "";
+  explanationDiv.textContent = `คุณตอบถูกทั้งหมด ${totalCorrectAnswers} ข้อ จากคำถามทั้งหมด ${totalQuestionsAnswered} ข้อ`;
 }
 function shareScore(){
-  const shareText = `ฉันเล่นเกมตอบคำถามเศรษฐศาสตร์ และไปได้ถึงเลเวล ${currentLevel}!`;
+  const shareText = `ฉันเล่นเกมตอบคำถามเศรษฐศาสตร์ และไปได้ถึงเลเวล ${currentLevel} ทำคะแนนได้ ${totalCorrectAnswers} จาก ${totalQuestionsAnswered} ข้อ!`;
   const shareData = {title:'เกมตอบคำถามเศรษฐศาสตร์', text:shareText, url:window.location.href};
   if(navigator.share){ navigator.share(shareData).catch(()=>{}); } else { alert(shareText); }
 }
