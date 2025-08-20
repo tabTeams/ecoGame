@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>เกมตอบคำถามเศรษฐศาสตร์มหภาค</title>
+<title>เกมตอบคำถามเศรษฐศาสตร์</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -34,7 +34,7 @@ button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
 }
-#gameArea {
+#gameArea, #introScreen {
     background-color: #fff;
     border-radius: 10px;
     padding: 20px;
@@ -95,9 +95,23 @@ button:disabled {
 </head>
 <body>
 
-<h1>เกมตอบคำถามเศรษฐศาสตร์มหภาค</h1>
-<div id="gameArea">
-    <div id="status">เลเวล: 1 | ตอบถูกต่อเนื่อง: 0/10</div>
+<h1>เกมตอบคำถามเศรษฐศาสตร์</h1>
+
+<div id="introScreen">
+    <h2>ยินดีต้อนรับสู่เกมตอบคำถามเศรษฐศาสตร์</h2>
+    <p>เกมนี้จะทดสอบความรู้ของคุณเกี่ยวกับเศรษฐศาสตร์ มีกติกาดังนี้:</p>
+    <ul>
+        <li>ในแต่ละเลเวลจะมีคำถามให้ตอบ 10 ข้อ</li>
+        <li>คุณสามารถตอบผิดได้ไม่เกิน 3 ครั้งในแต่ละเลเวล</li>
+        <li>หากตอบถูกครบ 10 ข้อ จะผ่านไปยังเลเวลถัดไป</li>
+        <li>หากตอบผิดเกิน 3 ครั้ง หรือตอบคำถามครบทั้งหมดแล้วแต่ยังไม่ผ่านด่าน เกมจะโอเวอร์</li>
+        <li>คะแนนจะถูกสรุปเมื่อจบแต่ละเลเวล</li>
+    </ul>
+    <button id="startBtn">เริ่มเล่นเกม</button>
+</div>
+
+<div id="gameArea" class="hidden">
+    <div id="status"></div>
     <div id="questionBox" role="alert" aria-live="assertive"></div>
     <div id="choices">
         <button class="choice" data-index="0"></button>
@@ -160,7 +174,7 @@ button:disabled {
                 "การว่างงาน",
                 "การเติบโตทางเศรษฐกิจ"
             ],
-            answer: 0,
+            answer: 1,
             explanation: "ต้นทุนค่าเสียโอกาสของการถือเงินเพิ่มสูงขึ้นเป็นหนึ่งในผลกระทบเมื่อเกิดภาวะเงินเฟ้อ"
         },
         {
@@ -283,6 +297,206 @@ button:disabled {
             ],
             answer: 2,
             explanation: "เสถียรภาพด้านราคาช่วยลดความผันผวนของอัตราดอกเบี้ยที่แท้จริง"
+        },
+        {
+            q: "หน่วยเศรษฐกิจใดตัดสินใจเลือกใช้งบประมาณประเทศ?",
+            choices: [
+                "ครอบครัว",
+                "รัฐบาล",
+                "ผู้ผลิต",
+                "ผู้บริโภค"
+            ],
+            answer: 1
+        },
+        {
+            q: "ระบบเศรษฐกิจใดมีการแข่งขันเสรี?",
+            choices: [
+                "ระบบผสม",
+                "ระบบสังคมนิยม",
+                "ระบบทุนนิยม",
+                "ระบบคอมมิวนิสต์"
+            ],
+            answer: 2
+        },
+        {
+            q: "สิ่งใดเป็นตัวกลางในการแลกเปลี่ยนในเศรษฐกิจยุคใหม่?",
+            choices: [
+                "แรงงาน",
+                "สินค้า",
+                "เงิน",
+                "ทุน"
+            ],
+            answer: 2
+        },
+        {
+            q: "ข้อใดไม่ใช่ปัจจัยการผลิต?",
+            choices: [
+                "ที่ดิน",
+                "แรงงาน",
+                "สินค้า",
+                "ทุน"
+            ],
+            answer: 2
+        },
+        {
+            q: "สินค้าใดถือเป็นสินค้าจำเป็น?",
+            choices: [
+                "เครื่องสำอาง",
+                "น้ำดื่ม",
+                "รถยนต์",
+                "เครื่องปรับอากาศ"
+            ],
+            answer: 1
+        },
+        {
+            q: "ใครเป็นเจ้าของทรัพยากรในระบบเศรษฐกิจแบบเสรี?",
+            choices: [
+                "รัฐบาล",
+                "รัฐวิสาหกิจ",
+                "เอกชน",
+                "ประชาชนรวมกัน"
+            ],
+            answer: 2
+        },
+        {
+            q: "แรงจูงใจของผู้ผลิตคืออะไร?",
+            choices: [
+                "ความพึงพอใจ",
+                "รายได้ประจำ",
+                "กำไรสูงสุด",
+                "ต้นทุนต่ำสุด"
+            ],
+            answer: 2
+        },
+        {
+            q: "ปัญหาพื้นฐานทางเศรษฐกิจได้แก่ข้อใด?",
+            choices: [
+                "การทำกำไรสูงสุด",
+                "การควบคุมราคา",
+                "ผลิตอะไร ผลิตอย่างไร ผลิตเพื่อใคร",
+                "การออมและการลงทุน"
+            ],
+            answer: 2
+        },
+        {
+            q: "ผลตอบแทนของแรงงานเรียกว่าอะไร?",
+            choices: [
+                "ค่าเช่า",
+                "ดอกเบี้ย",
+                "กำไร",
+                "ค่าจ้าง"
+            ],
+            answer: 3
+        },
+        {
+            q: "เศรษฐศาสตร์เกี่ยวข้องกับสิ่งใดมากที่สุดในชีวิตประจำวัน?",
+            choices: [
+                "วิทยาศาสตร์สิ่งแวดล้อม",
+                "การตัดสินใจเพื่อจัดสรรทรัพยากร",
+                "การแพทย์",
+                "วิศวกรรมศาสตร์"
+            ],
+            answer: 1
+        },
+        {
+            q: "อุปทานหมายถึงอะไร?",
+            choices: [
+                "ความต้องการซื้อ",
+                "ปริมาณที่ผู้ผลิตต้องการขาย",
+                "การบริโภค",
+                "ความต้องการใช้จ่าย"
+            ],
+            answer: 1
+        },
+        {
+            q: "ต้นทุนแฝงหมายถึงอะไร?",
+            choices: [
+                "ต้นทุนที่ไม่ต้องจ่ายจริง",
+                "ต้นทุนเงินสด",
+                "ต้นทุนแรงงาน",
+                "ต้นทุนทางบัญชี"
+            ],
+            answer: 0
+        },
+        {
+            q: "ตลาดผูกขาดมีลักษณะอย่างไร?",
+            choices: [
+                "มีผู้ขายหลายราย",
+                "มีผู้ขายรายเดียว",
+                "ไม่มีการแข่งขัน",
+                "มีแต่ผู้ซื้อ"
+            ],
+            answer: 1
+        },
+        {
+            q: "ปัจจัยที่กำหนดอุปสงค์คืออะไร?",
+            choices: [
+                "รายได้",
+                "ต้นทุน",
+                "เทคโนโลยี",
+                "แรงงาน"
+            ],
+            answer: 0
+        },
+        {
+            q: "แรงงานหมายถึงอะไร?",
+            choices: [
+                "ทุน",
+                "การทำงานของมนุษย์",
+                "เงินเดือน",
+                "ที่ดิน"
+            ],
+            answer: 1
+        },
+        {
+            q: "สินค้าใดเป็นตัวอย่างของสินค้าทุน?",
+            choices: [
+                "โต๊ะทำงาน",
+                "เครื่องจักร",
+                "อาหาร",
+                "เงินเดือน"
+            ],
+            answer: 1
+        },
+        {
+            q: "ถ้าราคาสินค้าเพิ่มขึ้น จะเกิดอะไรขึ้นกับอุปสงค์?",
+            choices: [
+                "เพิ่มขึ้น",
+                "ลดลง",
+                "ไม่เปลี่ยน",
+                "ขึ้นอยู่กับภาษี"
+            ],
+            answer: 1
+        },
+        {
+            q: "เศรษฐศาสตร์จุลภาคศึกษาอะไร?",
+            choices: [
+                "ระบบการเงิน",
+                "การว่างงาน",
+                "การตัดสินใจของผู้บริโภค",
+                "นโยบายการคลัง"
+            ],
+            answer: 2
+        },
+        {
+            q: "สินค้าใดไม่ใช่สินค้าอุปโภคบริโภค?",
+            choices: [
+                "ข้าวสาร",
+                "เครื่องซักผ้า",
+                "รถยนต์ส่วนตัว",
+                "เครื่องจักรโรงงาน"
+            ],
+            answer: 3
+        },
+        {
+            q: "ความขาดแคลนหมายถึงอะไรในเศรษฐศาสตร์?",
+            choices: [
+                "ของเหลือใช้",
+                "ทรัพยากรไม่จำกัด",
+                "ทรัพยากรมีจำกัด",
+                "ผลผลิตมากเกิน"
+            ],
+            answer: 2
         }
     ];
 
@@ -296,15 +510,20 @@ button:disabled {
 
     const questionsPerLevel = 10;
     const maxLevels = 3;
+    const maxIncorrectAnswers = 3;
 
-    let questions;
-    let currentQuestionIndex = 0;
+    let availableQuestions = [];
+    let questionsUsedInGame = [];
+    let currentQuestion = null;
     let currentLevel = 1;
+    let questionsAnsweredInLevel = 0;
+    let correctAnswersInLevel = 0;
+    let incorrectAnswersInLevel = 0;
     let consecutiveCorrect = 0;
-    let totalCorrectAnswers = 0;
-    let totalIncorrectAnswers = 0;
-    let totalQuestionsAnswered = 0;
 
+    const introScreen = document.getElementById("introScreen");
+    const gameArea = document.getElementById("gameArea");
+    const startBtn = document.getElementById("startBtn");
     const statusDiv = document.getElementById("status");
     const questionBox = document.getElementById("questionBox");
     const choicesBtns = document.querySelectorAll(".choice");
@@ -328,136 +547,154 @@ button:disabled {
         return array;
     }
 
-    function startGame(startLevel = 1) {
-        questions = shuffleArray([...allQuestions]);
-        currentQuestionIndex = 0;
-        currentLevel = startLevel;
-        consecutiveCorrect = 0;
-        totalCorrectAnswers = 0;
-        totalIncorrectAnswers = 0;
-        totalQuestionsAnswered = 0;
-        restartBtn.classList.add("hidden");
-        shareBtn.classList.add("hidden");
-        updateStatus();
-        loadQuestion();
+    function initializeGame() {
+        introScreen.classList.add("hidden");
+        gameArea.classList.remove("hidden");
+        currentLevel = 1;
+        questionsUsedInGame = []; // Reset used questions for a new game
+        startLevel();
     }
 
-    function updateStatus() {
-        statusDiv.textContent = `เลเวล: ${currentLevel} | ตอบถูกต่อเนื่อง: ${consecutiveCorrect}/${questionsPerLevel}`;
-    }
-
-    function loadQuestion() {
-        if (currentQuestionIndex >= questions.length) {
-            endGame(false); // Game over if questions run out
+    function startLevel() {
+        const remainingQuestions = allQuestions.filter(q => !questionsUsedInGame.includes(q));
+        if (remainingQuestions.length < questionsPerLevel) {
+            endGame(false, "คำถามไม่พอสำหรับเลเวลนี้");
             return;
         }
 
-        const q = questions[currentQuestionIndex];
-        const shuffledChoices = shuffleArray([...q.choices]);
-        const newAnswerIndex = shuffledChoices.indexOf(q.choices[q.answer]);
-        q.shuffledChoices = shuffledChoices;
-        q.newAnswer = newAnswerIndex;
+        const shuffledQuestions = shuffleArray(remainingQuestions);
+        availableQuestions = shuffledQuestions.slice(0, questionsPerLevel);
+        
+        // Add new questions to the 'used' list
+        questionsUsedInGame = questionsUsedInGame.concat(availableQuestions);
 
-        questionBox.textContent = q.q;
+        questionsAnsweredInLevel = 0;
+        correctAnswersInLevel = 0;
+        incorrectAnswersInLevel = 0;
+        consecutiveCorrect = 0;
+        
+        loadQuestion();
+        updateStatus();
+    }
+
+    function updateStatus() {
+        statusDiv.textContent = `เลเวล: ${currentLevel} | ตอบถูก: ${correctAnswersInLevel}/10 | ตอบผิด: ${incorrectAnswersInLevel}/${maxIncorrectAnswers}`;
+    }
+
+    function loadQuestion() {
+        if (questionsAnsweredInLevel >= questionsPerLevel) {
+            summarizeLevel();
+            return;
+        }
+
+        currentQuestion = availableQuestions.pop();
+        const shuffledChoices = shuffleArray([...currentQuestion.choices]);
+        const newAnswerIndex = shuffledChoices.indexOf(currentQuestion.choices[currentQuestion.answer]);
+        currentQuestion.shuffledChoices = shuffledChoices;
+        currentQuestion.newAnswer = newAnswerIndex;
+
+        questionBox.textContent = currentQuestion.q;
         choicesBtns.forEach((btn, index) => {
-            btn.textContent = q.shuffledChoices[index];
+            btn.textContent = currentQuestion.shuffledChoices[index];
             btn.classList.remove("hidden", "correct", "incorrect");
             btn.disabled = false;
         });
         explanationDiv.textContent = "";
         nextBtn.classList.add("hidden");
         shareBtn.classList.add("hidden");
+        restartBtn.classList.add("hidden");
     }
 
     function checkAnswer(selectedAnswer) {
-        const q = questions[currentQuestionIndex];
         choicesBtns.forEach(b => b.disabled = true);
-        totalQuestionsAnswered++;
         
         const selectedBtn = choicesBtns[selectedAnswer];
+        questionsAnsweredInLevel++;
 
-        if (selectedAnswer === q.newAnswer) {
+        if (selectedAnswer === currentQuestion.newAnswer) {
+            correctAnswersInLevel++;
             consecutiveCorrect++;
-            totalCorrectAnswers++;
             selectedBtn.classList.add("correct");
             
-            let message = correctMessages[Math.min(consecutiveCorrect - 1, correctMessages.length - 1)];
-            if (consecutiveCorrect >= correctMessages.length) {
-                 message = correctMessages[correctMessages.length - 1];
-            } else {
-                 message = correctMessages[consecutiveCorrect - 1];
-            }
-            
-            explanationDiv.textContent = `${message} ${q.explanation}`;
+            const message = correctMessages[Math.min(consecutiveCorrect - 1, correctMessages.length - 1)];
+            explanationDiv.textContent = `${message} ${currentQuestion.explanation || ""}`;
             correctSound.play();
-            
-            if (consecutiveCorrect === questionsPerLevel) {
-                if (currentLevel === maxLevels) {
-                    setTimeout(() => endGame(true), 1500);
-                } else {
-                    setTimeout(() => levelUp(), 1500);
-                }
-            } else {
-                setTimeout(() => {
-                    currentQuestionIndex++;
-                    loadQuestion();
-                    updateStatus();
-                }, 2000); 
-            }
         } else {
+            incorrectAnswersInLevel++;
             consecutiveCorrect = 0;
-            totalIncorrectAnswers++;
             selectedBtn.classList.add("incorrect");
-            choicesBtns[q.newAnswer].classList.add("correct");
+            choicesBtns[currentQuestion.newAnswer].classList.add("correct");
             
             const randomWrongMessage = wrongMessages[Math.floor(Math.random() * wrongMessages.length)];
-            explanationDiv.textContent = `${randomWrongMessage} คำตอบที่ถูกต้องคือ: ${q.shuffledChoices[q.newAnswer]}. ${q.explanation}`;
+            explanationDiv.textContent = `${randomWrongMessage} คำตอบที่ถูกต้องคือ: ${currentQuestion.shuffledChoices[currentQuestion.newAnswer]}. ${currentQuestion.explanation || ""}`;
             wrongSound.play();
-            
-            restartBtn.classList.remove("hidden");
-            shareBtn.classList.remove("hidden");
         }
+
         updateStatus();
+
+        if (incorrectAnswersInLevel >= maxIncorrectAnswers) {
+            setTimeout(() => endGame(false), 1500);
+        } else if (questionsAnsweredInLevel === questionsPerLevel) {
+            setTimeout(() => summarizeLevel(), 1500);
+        } else {
+            setTimeout(() => loadQuestion(), 2000); 
+        }
     }
 
-    function levelUp() {
+    function summarizeLevel() {
+        choicesBtns.forEach(b => b.classList.add("hidden"));
+        
+        let summaryText;
+        if (correctAnswersInLevel >= questionsPerLevel) {
+            questionBox.textContent = `ผ่านเลเวล ${currentLevel}! 🎉`;
+            summaryText = `คุณตอบถูก ${correctAnswersInLevel} ข้อ จาก 10 ข้อในเลเวลนี้!`;
+            levelUpSound.play();
+            if (currentLevel < maxLevels) {
+                 setTimeout(() => nextLevel(), 3000);
+            } else {
+                 setTimeout(() => endGame(true), 3000);
+            }
+        } else {
+            questionBox.textContent = `ไม่ผ่าน! เกมโอเวอร์`;
+            summaryText = `ในเลเวลนี้ คุณตอบถูก ${correctAnswersInLevel} ข้อ และตอบผิด ${incorrectAnswersInLevel} ข้อ`;
+            failureSound.play();
+            setTimeout(() => endGame(false), 3000);
+        }
+        explanationDiv.textContent = summaryText;
+        restartBtn.classList.remove("hidden");
+        shareBtn.classList.remove("hidden");
+    }
+
+    function nextLevel() {
         currentLevel++;
-        consecutiveCorrect = 0;
-        currentQuestionIndex++;
-        questionBox.textContent = `ผ่านเลเวล ${currentLevel - 1}! 🎉 เตรียมตัวสำหรับเลเวล ${currentLevel}`;
+        questionBox.textContent = `เตรียมตัวสำหรับเลเวล ${currentLevel}...`;
         explanationDiv.textContent = "";
-        nextBtn.classList.add("hidden");
-        levelUpSound.play();
-        setTimeout(() => {
-            loadQuestion();
-            updateStatus();
-        }, 3000); 
+        setTimeout(() => startLevel(), 1500);
     }
 
     function endGame(isWin) {
         choicesBtns.forEach(b => b.classList.add("hidden"));
         nextBtn.classList.add("hidden");
+        restartBtn.classList.remove("hidden");
         shareBtn.classList.remove("hidden");
         
-        let summaryText;
+        let finalMessage;
         if (isWin) {
-            questionBox.textContent = `ยินดีด้วย! คุณชนะเกมแล้ว!`;
-            summaryText = `คุณตอบถูก ${totalCorrectAnswers} ข้อ จากทั้งหมด ${totalQuestionsAnswered} ข้อ และไปถึงเลเวลสุดท้ายคือ ${currentLevel} 🏆`;
+            finalMessage = `ยินดีด้วย! คุณตอบคำถามครบทุกเลเวลและชนะเกมแล้ว! 🏆`;
             victorySound.play();
         } else {
-            questionBox.textContent = `ไม่ผ่าน! เกมโอเวอร์`;
-            summaryText = `คุณตอบถูก ${totalCorrectAnswers} ข้อ และตอบผิด ${totalIncorrectAnswers} ข้อ จากทั้งหมด ${totalQuestionsAnswered} ข้อ คุณไปถึงเลเวล ${currentLevel} 😥`;
+            finalMessage = `เกมโอเวอร์! คุณไปถึงเลเวล ${currentLevel} 😥`;
             failureSound.play();
         }
-        explanationDiv.textContent = summaryText;
-        restartBtn.classList.remove("hidden");
+        questionBox.textContent = finalMessage;
+        explanationDiv.textContent = "";
     }
     
     function shareScore() {
-        let shareText = `ฉันไปถึงเลเวล ${currentLevel} และตอบถูก ${totalCorrectAnswers} ข้อ จากทั้งหมด ${totalQuestionsAnswered} ข้อ ในเกมตอบคำถามเศรษฐศาสตร์มหภาค! ลองมาแข่งกันดูสิ!`;
+        const shareText = `ฉันเล่นเกมตอบคำถามเศรษฐศาสตร์ และไปได้ถึงเลเวล ${currentLevel}! ลองมาแข่งกันดูสิ!`;
 
         const shareData = {
-            title: 'เกมตอบคำถามเศรษฐศาสตร์มหภาค',
+            title: 'เกมตอบคำถามเศรษฐศาสตร์',
             text: shareText,
             url: window.location.href
         };
@@ -471,22 +708,15 @@ button:disabled {
         }
     }
 
+    startBtn.addEventListener("click", initializeGame);
     choicesBtns.forEach((btn, index) => {
         btn.addEventListener("click", () => checkAnswer(index));
     });
-
-    nextBtn.addEventListener("click", () => {
-        currentQuestionIndex++;
-        loadQuestion();
-    });
-
     shareBtn.addEventListener("click", shareScore);
     restartBtn.addEventListener("click", () => {
-        startGame(currentLevel);
+        location.reload(); 
     });
 
-    // Initialize the game
-    startGame();
 </script>
 
 </body>
