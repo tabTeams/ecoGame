@@ -110,6 +110,12 @@ button:disabled {
     <button id="startBtn">เริ่มเล่นเกม</button>
 </div>
 
+<div id="levelInfo" class="hidden">
+    <div><strong>เลเวลปัจจุบัน =  <span id="levelLabel">1</span></strong></div>
+    <div id="chapterName" class="small"> </div>
+    <div class="small"> ( /เลเวล)</div>
+</div>
+
 <div id="gameArea" class="hidden">
     <div id="status"></div>
     <div id="questionBox" role="alert" aria-live="assertive"></div>
@@ -132,591 +138,396 @@ button:disabled {
 <audio id="failureSound" src="failure.ogg"></audio>
 
 <script>
-    const allQuestions = [
-        {
-            q: "เศรษฐศาสตร์มหภาคเป็นการศึกษาเกี่ยวกับอะไร?",
-            choices: [
-                "กิจกรรมทางเศรษฐกิจส่วนรวม",
-                "พฤติกรรมของหน่วยผลิตและผู้บริโภครายบุคคล",
-                "การจัดสรรทรัพยากรที่มีจำกัด",
-                "ต้นทุนและกำไรของธุรกิจขนาดเล็ก"
-            ],
-            answer: 0,
-            explanation: "เศรษฐศาสตร์มหภาค (Macroeconomics) เป็นการศึกษากิจกรรมทางเศรษฐกิจส่วนรวม เช่น ผลผลิตมวลรวมของประเทศ, วัฏจักรธุรกิจ, อัตราการจ้างงาน"
-        },
-        {
-            q: "ข้อใดคือหนึ่งในเป้าหมายหลักของระบบเศรษฐกิจ?",
-            choices: [
-                "การเพิ่มขึ้นของรายได้ประจำ",
-                "การลดอัตราดอกเบี้ย",
-                "การเจริญเติบโตทางเศรษฐกิจอย่างยั่งยืน",
-                "การเพิ่มขึ้นของค่าใช้จ่ายภาครัฐ"
-            ],
-            answer: 2,
-            explanation: "การเจริญเติบโตทางเศรษฐกิจ (Economic Growth) เป็นหนึ่งในเป้าหมายของระบบเศรษฐกิจ โดยเน้นที่การพัฒนาเศรษฐกิจที่ยั่งยืน"
-        },
-        {
-            q: "ข้อใดคือประโยชน์ของดัชนีราคาผู้บริโภค?",
-            choices: [
-                "ใช้ในการวิจัยและพยากรณ์การตลาด",
-                "ใช้ในการคำนวณภาษีเงินได้",
-                "ใช้ในการปรับอัตราดอกเบี้ย",
-                "ใช้ในการคำนวณรายได้ต่อหัว"
-            ],
-            answer: 0,
-            explanation: "ดัชนีราคาผู้บริโภคใช้เป็นแนวทางในการวิจัย พยากรณ์การตลาดและราคาสินค้าต่างๆ"
-        },
-        {
-            q: "ต้นทุนค่าเสียโอกาสของการถือเงินเพิ่มสูงขึ้นเป็นผลจากภาวะใด?",
-            choices: [
-                "ภาวะเงินเฟ้อ",
-                "ภาวะเงินฝืด",
-                "การว่างงาน",
-                "การเติบโตทางเศรษฐกิจ"
-            ],
-            answer: 1,
-            explanation: "ต้นทุนค่าเสียโอกาสของการถือเงินเพิ่มสูงขึ้นเป็นหนึ่งในผลกระทบเมื่อเกิดภาวะเงินเฟ้อ"
-        },
-        {
-            q: "ใครเป็นผู้เสียประโยชน์จากภาวะเงินเฟ้อ?",
-            choices: [
-                "ลูกหนี้",
-                "เจ้าของธุรกิจ",
-                "ผู้ที่มีรายได้คงที่",
-                "ผู้กู้ยืมเงิน"
-            ],
-            answer: 2,
-            explanation: "ผู้ที่มีรายได้เป็นตัวเงินคงที่ เช่น ผู้ที่รับเงินประจำหรือเงินบำนาญจะเสียประโยชน์จากภาวะเงินเฟ้อ"
-        },
-        {
-            q: "ความผันผวนของอะไรที่มักใช้วัดวัฏจักรธุรกิจ?",
-            choices: [
-                "ราคาน้ำมัน",
-                "อัตราแลกเปลี่ยนเงินตรา",
-                "GDP",
-                "จำนวนประชากร"
-            ],
-            answer: 2,
-            explanation: "วัฏจักรธุรกิจมักวัดจากความผันผวนของ GDP, ดัชนีการผลิตสินค้าอุตสาหกรรม, การจ้างงาน และรายได้"
-        },
-        {
-            q: "การที่รัฐบาลต้องเปลี่ยนแปลงเนื่องจากปัญหาทางสังคมจากการว่างงาน เรียกว่าอะไร?",
-            choices: [
-                "การลดเสถียรภาพของรัฐบาล",
-                "การบริหารประเทศที่ผิดพลาด",
-                "ความขัดแย้งทางการเมือง",
-                "การปฏิรูปเศรษฐกิจ"
-            ],
-            answer: 0,
-            explanation: "เมื่อรัฐบาลไม่สามารถแก้ปัญหาการว่างงานได้ อาจทำให้ประชาชนไม่พอใจและทำให้ต้องมีการเปลี่ยนแปลงรัฐบาล ซึ่งเป็นการสั่นคลอนเสถียรภาพของรัฐบาล"
-        },
-        {
-            q: "ภาวะเงินเฟ้อหมายถึงอะไร?",
-            choices: [
-                "ระดับราคาสินค้าโดยเฉลี่ยลดลง",
-                "ระดับราคาสินค้าโดยเฉลี่ยคงที่",
-                "ระดับราคาสินค้าโดยเฉลี่ยสูงขึ้นเรื่อยๆ",
-                "การเพิ่มขึ้นของค่าครองชีพ"
-            ],
-            answer: 2,
-            explanation: "ภาวะเงินเฟ้อ (Inflation) หมายถึง ภาวะที่ระดับราคาสินค้าโดยเฉลี่ยสูงขึ้นเรื่อยๆอย่างต่อเนื่อง"
-        },
-        {
-            q: "การสำรวจภาวะเศรษฐกิจและสังคมของครัวเรือนเพื่อปรับปรุงดัชนีราคาผู้บริโภคทำทุกกี่ปี?",
-            choices: [
-                "ทุกๆ 2 ปี",
-                "ทุกๆ 4 ปี",
-                "ทุกๆ 5 ปี",
-                "ทุกๆ 10 ปี"
-            ],
-            answer: 1,
-            explanation: "สำนักดัชนีเศรษฐกิจการค้า กระทรวงพาณิชย์ ได้มีการปรับปรุงน้ำหนักค่าใช้จ่ายและรายการสินค้าที่ใช้คำนวณดัชนีราคาผู้บริโภคทุกๆ 4 ปี"
-        },
-        {
-            q: "ผู้ที่ถูกจัดอยู่ใน 'กำลังแรงงานที่รอฤดูกาล' คือใคร?",
-            choices: [
-                "บุคคลที่ไม่มีงานประจำและไม่ได้หางานทำ",
-                "บุคคลที่ตามปกติทำงานโดยไม่ได้รับสิ่งตอบแทนในไร่นาซึ่งทำกิจกรรมตามฤดูกาล",
-                "บุคคลที่ทำงานบ้าน",
-                "นักเรียนนักศึกษาเต็มเวลา"
-            ],
-            answer: 1,
-            explanation: "กำลังแรงงานที่รอฤดูกาล หมายถึงบุคคลอายุ 15 ปีขึ้นไปที่ตามปกติจะเป็นผู้ทำงานโดยไม่ได้รับสิ่งตอบแทนในไร่นาเกษตรหรือธุรกิจซึ่งทำกิจกรรมตามฤดูกาล"
-        },
-        {
-            q: "ข้อใดเป็นผลเสียทางเศรษฐกิจที่สำคัญของการว่างงาน?",
-            choices: [
-                "ทำให้ประเทศสูญเสียรายได้ประชาชาติ",
-                "ทำให้ฐานะการคลังของรัฐบาลดีขึ้น",
-                "ทำให้การบริโภคเพิ่มขึ้น",
-                "ทำให้มูลค่าเงินเพิ่มขึ้น"
-            ],
-            answer: 0,
-            explanation: "ผลเสียทางเศรษฐกิจที่สำคัญของการว่างงานคือ ทำให้ประเทศต้องสูญเสียรายได้ประชาชาติไปบางส่วน"
-        },
-        {
-            q: "การว่างงานประเภทใดที่เป็นส่วนหนึ่งของอัตราการว่างงานตามธรรมชาติ?",
-            choices: [
-                "การว่างงานเนื่องจากวัฏจักรธุรกิจ",
-                "การว่างงานตามฤดูกาล",
-                "การว่างงานจากการเปลี่ยนแปลงโครงสร้างทางเศรษฐกิจ",
-                "การว่างงานเชิงเทคโนโลยี"
-            ],
-            answer: 2,
-            explanation: "การว่างงานเนื่องจากการเปลี่ยนแปลงโครงสร้างทางเศรษฐกิจเป็นส่วนหนึ่งของอัตราการว่างงานตามธรรมชาติของประเทศ"
-        },
-        {
-            q: "การที่ประชาชนว่างงานมากและรัฐบาลไม่สามารถแก้ปัญหาได้ อาจนำไปสู่สิ่งใด?",
-            choices: [
-                "การประท้วงรัฐบาล",
-                "การลาออกของรัฐบาล",
-                "การเปลี่ยนแปลงรัฐบาล",
-                "ถูกทุกข้อ"
-            ],
-            answer: 3,
-            explanation: "หากรัฐบาลไม่สามารถแก้ปัญหาการว่างงานได้ ประกอบกับปัญหาทางสังคมที่รุนแรงขึ้น อาจทำให้มีการประท้วงหรือเรียกร้องให้รัฐบาลลาออก ซึ่งนำไปสู่การเปลี่ยนแปลงรัฐบาลได้"
-        },
-        {
-            q: "ข้อใดคือความหมายของ 'ผลผลิตมวลรวม'?",
-            choices: [
-                "ผลรวมมูลค่าเพิ่มที่สามารถผลิตได้สูงสุด",
-                "ผลรวมมูลค่าเพิ่มของกิจกรรมทางเศรษฐกิจที่เกิดขึ้นจริง",
-                "การเจริญเติบโตทางเศรษฐกิจ",
-                "ปริมาณสินค้าและบริการที่ผลิตได้"
-            ],
-            answer: 1,
-            explanation: "ผลผลิตมวลรวม (GDP) เป็นส่วนหนึ่งของการศึกษากิจกรรมทางเศรษฐกิจส่วนรวม ซึ่งมีความหมายใกล้เคียงกับผลผลิตที่แท้จริง"
-        },
-        {
-            q: "การลดความผันผวนของอัตราดอกเบี้ยที่แท้จริงเป็นผลจากการบรรลุเป้าหมายด้านใด?",
-            choices: [
-                "การจ้างงานเต็มที่",
-                "การกระจายรายได้ที่เป็นธรรม",
-                "เสถียรภาพของระดับราคา",
-                "การเจริญเติบโตทางเศรษฐกิจ"
-            ],
-            answer: 2,
-            explanation: "เสถียรภาพด้านราคาช่วยลดความผันผวนของอัตราดอกเบี้ยที่แท้จริง"
-        },
-        {
-            q: "หน่วยเศรษฐกิจใดตัดสินใจเลือกใช้งบประมาณประเทศ?",
-            choices: [
-                "ครอบครัว",
-                "รัฐบาล",
-                "ผู้ผลิต",
-                "ผู้บริโภค"
-            ],
-            answer: 1
-        },
-        {
-            q: "ระบบเศรษฐกิจใดมีการแข่งขันเสรี?",
-            choices: [
-                "ระบบผสม",
-                "ระบบสังคมนิยม",
-                "ระบบทุนนิยม",
-                "ระบบคอมมิวนิสต์"
-            ],
-            answer: 2
-        },
-        {
-            q: "สิ่งใดเป็นตัวกลางในการแลกเปลี่ยนในเศรษฐกิจยุคใหม่?",
-            choices: [
-                "แรงงาน",
-                "สินค้า",
-                "เงิน",
-                "ทุน"
-            ],
-            answer: 2
-        },
-        {
-            q: "ข้อใดไม่ใช่ปัจจัยการผลิต?",
-            choices: [
-                "ที่ดิน",
-                "แรงงาน",
-                "สินค้า",
-                "ทุน"
-            ],
-            answer: 2
-        },
-        {
-            q: "สินค้าใดถือเป็นสินค้าจำเป็น?",
-            choices: [
-                "เครื่องสำอาง",
-                "น้ำดื่ม",
-                "รถยนต์",
-                "เครื่องปรับอากาศ"
-            ],
-            answer: 1
-        },
-        {
-            q: "ใครเป็นเจ้าของทรัพยากรในระบบเศรษฐกิจแบบเสรี?",
-            choices: [
-                "รัฐบาล",
-                "รัฐวิสาหกิจ",
-                "เอกชน",
-                "ประชาชนรวมกัน"
-            ],
-            answer: 2
-        },
-        {
-            q: "แรงจูงใจของผู้ผลิตคืออะไร?",
-            choices: [
-                "ความพึงพอใจ",
-                "รายได้ประจำ",
-                "กำไรสูงสุด",
-                "ต้นทุนต่ำสุด"
-            ],
-            answer: 2
-        },
-        {
-            q: "ปัญหาพื้นฐานทางเศรษฐกิจได้แก่ข้อใด?",
-            choices: [
-                "การทำกำไรสูงสุด",
-                "การควบคุมราคา",
-                "ผลิตอะไร ผลิตอย่างไร ผลิตเพื่อใคร",
-                "การออมและการลงทุน"
-            ],
-            answer: 2
-        },
-        {
-            q: "ผลตอบแทนของแรงงานเรียกว่าอะไร?",
-            choices: [
-                "ค่าเช่า",
-                "ดอกเบี้ย",
-                "กำไร",
-                "ค่าจ้าง"
-            ],
-            answer: 3
-        },
-        {
-            q: "เศรษฐศาสตร์เกี่ยวข้องกับสิ่งใดมากที่สุดในชีวิตประจำวัน?",
-            choices: [
-                "วิทยาศาสตร์สิ่งแวดล้อม",
-                "การตัดสินใจเพื่อจัดสรรทรัพยากร",
-                "การแพทย์",
-                "วิศวกรรมศาสตร์"
-            ],
-            answer: 1
-        },
-        {
-            q: "อุปทานหมายถึงอะไร?",
-            choices: [
-                "ความต้องการซื้อ",
-                "ปริมาณที่ผู้ผลิตต้องการขาย",
-                "การบริโภค",
-                "ความต้องการใช้จ่าย"
-            ],
-            answer: 1
-        },
-        {
-            q: "ต้นทุนแฝงหมายถึงอะไร?",
-            choices: [
-                "ต้นทุนที่ไม่ต้องจ่ายจริง",
-                "ต้นทุนเงินสด",
-                "ต้นทุนแรงงาน",
-                "ต้นทุนทางบัญชี"
-            ],
-            answer: 0
-        },
-        {
-            q: "ตลาดผูกขาดมีลักษณะอย่างไร?",
-            choices: [
-                "มีผู้ขายหลายราย",
-                "มีผู้ขายรายเดียว",
-                "ไม่มีการแข่งขัน",
-                "มีแต่ผู้ซื้อ"
-            ],
-            answer: 1
-        },
-        {
-            q: "ปัจจัยที่กำหนดอุปสงค์คืออะไร?",
-            choices: [
-                "รายได้",
-                "ต้นทุน",
-                "เทคโนโลยี",
-                "แรงงาน"
-            ],
-            answer: 0
-        },
-        {
-            q: "แรงงานหมายถึงอะไร?",
-            choices: [
-                "ทุน",
-                "การทำงานของมนุษย์",
-                "เงินเดือน",
-                "ที่ดิน"
-            ],
-            answer: 1
-        },
-        {
-            q: "สินค้าใดเป็นตัวอย่างของสินค้าทุน?",
-            choices: [
-                "โต๊ะทำงาน",
-                "เครื่องจักร",
-                "อาหาร",
-                "เงินเดือน"
-            ],
-            answer: 1
-        },
-        {
-            q: "ถ้าราคาสินค้าเพิ่มขึ้น จะเกิดอะไรขึ้นกับอุปสงค์?",
-            choices: [
-                "เพิ่มขึ้น",
-                "ลดลง",
-                "ไม่เปลี่ยน",
-                "ขึ้นอยู่กับภาษี"
-            ],
-            answer: 1
-        },
-        {
-            q: "เศรษฐศาสตร์จุลภาคศึกษาอะไร?",
-            choices: [
-                "ระบบการเงิน",
-                "การว่างงาน",
-                "การตัดสินใจของผู้บริโภค",
-                "นโยบายการคลัง"
-            ],
-            answer: 2
-        },
-        {
-            q: "สินค้าใดไม่ใช่สินค้าอุปโภคบริโภค?",
-            choices: [
-                "ข้าวสาร",
-                "เครื่องซักผ้า",
-                "รถยนต์ส่วนตัว",
-                "เครื่องจักรโรงงาน"
-            ],
-            answer: 3
-        },
-        {
-            q: "ความขาดแคลนหมายถึงอะไรในเศรษฐศาสตร์?",
-            choices: [
-                "ของเหลือใช้",
-                "ทรัพยากรไม่จำกัด",
-                "ทรัพยากรมีจำกัด",
-                "ผลผลิตมากเกิน"
-            ],
-            answer: 2
-        }
-    ];
+// =======  =======
+const questionsPerLevel = 10;
+const maxIncorrectAnswers = 3;
+const maxLevels = 10;
 
-    const correctMessages = [
-        "เยี่ยมมาก!", "ถูกต้อง! สุดยอดไปเลย!", "สุดยอด! คุณตอบถูกอีกแล้ว!", "เก่งมาก! ไปต่อเลย!", "สุดยอดเลย! คุณทำได้ดีมาก!"
-    ];
+// ======= แมปเลเวล = บท =======
+const chapterTitles = {
+  1: "บทที่ 1 หลักพื้นฐานทางเศรษฐศาสตร์",
+  2: "บทที่ 2 อุปสงค์ อุปทาน และดุลยภาพตลาด",
+  3: "บทที่ 3 ต้นทุนการผลิตและรายได้",
+  4: "บทที่ 4 โครงสร้างตลาดและการแข่งขัน",
+  5: "บทที่ 5 ดุลยภาพผู้บริโภค/ผู้ผลิต",
+  6: "บทที่ 6 ภาพรวมเศรษฐกิจ (มหภาค)",
+  7: "บทที่ 7 รายได้ประชาชาติ ว่างงาน เงินเฟ้อ",
+  8: "บทที่ 8 นโยบายการคลัง",
+  9: "บทที่ 9 เงิน ระบบการเงิน และนโยบายการเงิน",
+ 10: "บทที่ 10 เศรษฐกิจระหว่างประเทศ"
+};
 
-    const wrongMessages = [
-        "ไม่เป็นไร ลองใหม่ได้!", "ไม่ถูก แต่คุณทำได้ดีที่สุดแล้ว!", "พยายามอีกครั้งนะ!", "สู้ๆ! พลาดครั้งนี้ไม่เป็นไร!", "ลองทบทวนดูอีกทีนะ!"
-    ];
+// ======= คลังคำศัพท์-นิยามต่อบท (15 คู่ => 30 ข้อ/บท) =======
+const chapterTermDefs = {
+  1: [
+    ["ทรัพยากรมีจำกัด","ข้อจำกัดที่ทำให้ต้องเลือกและจัดสรร"],
+    ["ต้นทุนค่าเสียโอกาส","มูลค่าของทางเลือกที่ดีที่สุดที่สละไป"],
+    ["ปัญหาพื้นฐานเศรษฐกิจ","ผลิตอะไร ผลิตอย่างไร ผลิตเพื่อใคร"],
+    ["หน่วยครัวเรือน","ผู้บริโภคที่มุ่งความพึงพอใจสูงสุด"],
+    ["หน่วยผลิต","ผู้ผลิตที่มุ่งกำไรสูงสุด"],
+    ["จุลภาค","ศึกษาหน่วยเศรษฐกิจย่อยและราคา"],
+    ["มหภาค","ศึกษาภาพรวมเศรษฐกิจทั้งระบบ"],
+    ["สินค้าเสรี","มีมากเพียงพอ ไม่ต้องแลกเปลี่ยน"],
+    ["สินค้าเศรษฐกิจ","มีจำกัด ต้องแลกเปลี่ยน"],
+    ["สินค้าแทนกัน","ทดแทนกันได้ เช่น ชา-กาแฟ"],
+    ["สินค้าร่วมกัน","ต้องใช้ร่วม เช่น ปากกากับไส้ปากกา"],
+    ["แรงงาน","ปัจจัยที่ให้ผลตอบแทนเป็นค่าจ้าง"],
+    ["ที่ดิน","ปัจจัยที่ให้ผลตอบแทนเป็นค่าเช่า"],
+    ["ทุน","ปัจจัยที่ให้ผลตอบแทนเป็นดอกเบี้ย"],
+    ["ผู้ประกอบการ","ให้ผลตอบแทนเป็นกำไร"]
+  ],
+  2: [
+    ["อุปสงค์","ปริมาณที่ผู้บริโภคต้องการซื้อ ณ ราคาต่าง ๆ"],
+    ["อุปทาน","ปริมาณที่ผู้ผลิตต้องการขาย ณ ราคาต่าง ๆ"],
+    ["กฎอุปสงค์","ราคาเพิ่ม ปริมาณซื้อย่อมลดลง"],
+    ["กฎอุปทาน","ราคาเพิ่ม ปริมาณขายย่อมเพิ่มขึ้น"],
+    ["ดุลยภาพตลาด","ปริมาณซื้อ=ขาย ที่ราคาหนึ่ง"],
+    ["ส่วนเกินผู้บริโภค","ส่วนต่างระหว่างความเต็มใจจ่ายกับราคาจริง"],
+    ["ส่วนเกินผู้ผลิต","ส่วนต่างระหว่างราคาจริงกับต้นทุนยอมรับ"],
+    ["อุปสงค์ส่วนเกิน","ราคาต่ำกว่าดุลยภาพ ปริมาณซื้อเกิน"],
+    ["อุปทานส่วนเกิน","ราคาสูงกว่าดุลยภาพ ปริมาณขายเกิน"],
+    ["ปัจจัยกำหนดอุปสงค์","ราคา รายได้ รสนิยม ประชากร ฯลฯ"],
+    ["ปัจจัยกำหนดอุปทาน","ราคา ต้นทุน เทคโนโลยี ผู้ขาย ฯลฯ"],
+    ["สินค้าแทนกัน","ราคาสินค้า A เพิ่ม อุปสงค์ B เพิ่ม"],
+    ["สินค้าร่วมกัน","ราคาสินค้า A เพิ่ม อุปสงค์ B ลด"],
+    ["ยืดหยุ่นของอุปสงค์","การตอบสนองปริมาณซื้อเมื่อราคาปรับ"],
+    ["ยืดหยุ่นของอุปทาน","การตอบสนองปริมาณขายเมื่อราคาปรับ"]
+  ],
+  3: [
+    ["TFC","ต้นทุนคงที่รวม ไม่เปลี่ยนตามปริมาณผลิต"],
+    ["TVC","ต้นทุนแปรผันรวม เปลี่ยนตามปริมาณผลิต"],
+    ["TC","ต้นทุนรวม = TFC + TVC"],
+    ["MC","ต้นทุนส่วนเพิ่ม จากการผลิตเพิ่ม 1 หน่วย"],
+    ["ATC","ต้นทุนเฉลี่ยรวม = TC/Q"],
+    ["AVC","ต้นทุนเฉลี่ยแปรผัน = TVC/Q"],
+    ["AFC","ต้นทุนเฉลี่ยคงที่ = TFC/Q"],
+    ["ผลได้ส่วนเพิ่มลดลง","เพิ่มปัจจัยแปรผันมากขึ้น ผลผลิตส่วนเพิ่มลด"],
+    ["ผลิตภาพ","ผลผลิตต่อหน่วย投入"],
+    ["จุดต่ำสุด AVC","จุดที่ MC ตัด AVC ที่ต่ำสุด"],
+    ["ต้นทุนโอกาส","ต้นทุนจากทางเลือกที่สละไปในการผลิต"],
+    ["TR","รายรับรวม = ราคา × ปริมาณขาย"],
+    ["กำไร","TR - TC"],
+    ["Economies of Scale","ต้นทุนเฉลี่ยลดลงเมื่อขยายการผลิต"],
+    ["Diseconomies","ต้นทุนเฉลี่ยสูงขึ้นเมื่อใหญ่เกินไป"]
+  ],
+  4: [
+    ["แข่งขันสมบูรณ์","ผู้ซื้อผู้ขายมาก สินค้าเหมือน เข้าตลาดเสรี"],
+    ["ผูกขาดกึ่งแข่งขัน","ผู้ขายหลายราย สินค้าแตกต่าง"],
+    ["ผู้ขายน้อยราย","ผู้ขายไม่กี่ราย มีอิทธิพลต่อราคา"],
+    ["ผูกขาด","ผู้ขายรายเดียว ไม่มีสิ่งทดแทนใกล้เคียง"],
+    ["อำนาจตลาด","กำหนดราคาเหนือ MC ได้"],
+    ["กีดกันราคา","แบ่งราคาแตกต่างตามกลุ่มลูกค้า"],
+    ["อุปสรรคเข้าสู่ตลาด","สิทธิบัตร ขนาดประหยัด เงินลงทุนสูง"],
+    ["แข่งขันไม่ใช่ราคา","โฆษณา บริการ แบรนด์"],
+    ["คาร์เทล","ร่วมมือกำหนดราคา/ปริมาณ"],
+    ["HHI","ดัชนีความกระจุกตัวของตลาด"],
+    ["ผลสวัสดิการ","ผลต่อส่วนเกินรวม"],
+    ["Markup","ส่วนต่างระหว่างราคาและ MC"],
+    ["ภาษีนำเข้า","กำแพงภาษีที่กีดกัน"],
+    ["โควตา/ใบอนุญาต","จำกัดปริมาณหรือการเข้าสู่ตลาด"],
+    ["ราคากำกับ","รัฐกำหนดเพดานหรือพื้นราคา"]
+  ],
+  5: [
+    ["MU ส่วนเพิ่ม","ความพึงพอใจเพิ่มจากการบริโภคเพิ่ม 1 หน่วย"],
+    ["ดุลยภาพผู้บริโภค","MUx/Px = MUy/Py ใต้งบประมาณ"],
+    ["เส้นงบประมาณ","ชุดทางเลือกที่ทำได้ด้วยรายได้หนึ่ง"],
+    ["เส้นไร้ความแตกต่าง","ชุดสินค้าที่ให้ความพึงพอใจเท่ากัน"],
+    ["ดุลยภาพผู้ผลิต","กำไรสูงสุดเมื่อ MR=MC"],
+    ["ส่วนเกินผู้บริโภค","พื้นที่ใต้ D เหนือราคา"],
+    ["ส่วนเกินผู้ผลิต","พื้นที่เหนือ S ใต้ราคา"],
+    ["ภาษีทางอ้อม","ผลักภาระไปผู้บริโภคได้บางส่วน"],
+    ["เงินอุดหนุน","รัฐช่วยจ่าย ลดต้นทุน"],
+    ["ผลเสียภายนอก","ต้นทุนที่ไม่สะท้อนในราคา"],
+    ["ผลดีภายนอก","ประโยชน์ที่ไม่สะท้อนในราคา"],
+    ["ล้มเหลวของตลาด","ตลาดจัดสรรทรัพยากรไม่เหมาะสม"],
+    ["สินค้าเอกชน","กีดกันได้และแย่งใช้ได้"],
+    ["สินค้าสาธารณะ","ไม่กีดกันและไม่แย่งใช้"],
+    ["สรุปจุลภาค","ดุลยภาพและสวัสดิการรวม"]
+  ],
+  6: [
+    ["มหภาคคือ","ศึกษาผลผลิตรวม ราคา การจ้างงาน"],
+    ["เป้าหมายมหภาค","เติบโต เสถียรภาพราคา จ้างงาน ดุลชำระเงิน"],
+    ["GDP","มูลค่าผลผลิตสุดท้ายที่ผลิตในประเทศ"],
+    ["GNP","มูลค่าผลผลิตโดยคนชาติไม่ว่าที่ใด"],
+    ["นามธรรม/ที่แท้จริง","GDP นามธรรม vs ที่แท้จริง"],
+    ["วัฏจักรธุรกิจ","ช่วงขยายตัว-ถดถอย"],
+    ["จุดสูงสุด","ปลายช่วงขยายก่อนชะลอ"],
+    ["จุดต่ำสุด","ปลายช่วงถดถอยก่อนฟื้น"],
+    ["AD","อุปสงค์รวมต่อผลผลิตและระดับราคา"],
+    ["AS","อุปทานรวมของผู้ผลิต"],
+    ["นโยบายมหภาค","การคลังและการเงิน"],
+    ["ค่าใช้จ่ายรวม","C+I+G+(X-M)"],
+    ["เงินเฟ้อทั่วไป","ระดับราคาเพิ่มขึ้นโดยทั่วไป"],
+    ["ดัชนีราคา","CPI, GDP deflator"],
+    ["TFP","ผลิตภาพรวมปัจจัย"]
+  ],
+  7: [
+    ["รายได้ประชาชาติ","รายได้รวมของประชากรประเทศ"],
+    ["ว่างงานโครงสร้าง","ทักษะไม่ตรงงาน"],
+    ["ว่างงานเสียดสี","ช่วงเปลี่ยนงาน/หางาน"],
+    ["ว่างงานวัฏจักร","เกิดจากเศรษฐกิจถดถอย"],
+    ["อัตราว่างงานธรรมชาติ","ระดับที่ไม่กดดันเงินเฟ้อ"],
+    ["เงินเฟ้ออุปสงค์ดึง","AD เพิ่มกดดันราคา"],
+    ["เงินเฟ้อต้นทุนดัน","ต้นทุนเพิ่มดันราคา"],
+    ["เงินฝืด","ระดับราคาลดลงทั่วไป"],
+    ["ฟิลลิปส์เคิร์ฟ","ความสัมพันธ์เงินเฟ้อ-ว่างงานระยะสั้น"],
+    ["GDP (รายจ่าย)","C+I+G+X-M"],
+    ["GDP (รายได้)","ค่าจ้าง+ดอกเบี้ย+ค่าเช่า+กำไร+ภาษีทางอ้อม-อุดหนุน"],
+    ["CPI","ดัชนีราคาผู้บริโภค"],
+    ["อัตราเติบโต","การเปลี่ยนแปลงร้อยละของผลผลิตจริง"],
+    ["ตัวคูณรายได้","รายได้เพิ่มมากกว่าการใช้จ่ายเริ่มแรก"],
+    ["ช่องว่างเงินเฟ้อ/เงินฝืด","ส่วนต่างผลผลิตจริงกับศักยภาพ"]
+  ],
+  8: [
+    ["นโยบายการคลัง","การใช้รายจ่ายและภาษีของรัฐ"],
+    ["งบขาดดุล","รายจ่าย>รายรับ"],
+    ["งบเกินดุล","รายรับ>รายจ่าย"],
+    ["ตัวคูณการคลัง","ผลของ G/Tax ต่อรายได้รวม"],
+    ["ตัวปรับเสถียรอัตโนมัติ","ภาษีก้าวหน้า/เงินโอนตอบสนองวัฏจักร"],
+    ["เพดานราคา","ราคาสูงสุดตามกฎหมาย (ต่ำกว่าดุลยภาพ)"],
+    ["ราคาพื้น","ราคาต่ำสุดตามกฎหมาย (สูงกว่าดุลยภาพ)"],
+    ["การจัดซื้อของรัฐ","ส่วนของ G ใน GDP"],
+    ["โครงสร้างรายจ่ายรัฐ","บริหาร เศรษฐกิจ สังคม ฯลฯ"],
+    ["หนี้สาธารณะ","หนี้ที่รัฐกู้"],
+    ["Crowding Out","G สูงดันดอกเบี้ย กด I เอกชน"],
+    ["ภาษีทางตรง","เช่น ภาษีเงินได้บุคคลธรรมดา"],
+    ["ภาษีทางอ้อม","เช่น ภาษีมูลค่าเพิ่ม"],
+    ["สมดุลเชิงวัฏจักร","ปรับนโยบายตามช่วงเศรษฐกิจ"],
+    ["กฎวินัยการคลัง","กรอบจำกัดขาดดุล/หนี้"]
+  ],
+  9: [
+    ["เงิน","สื่อกลาง หน่วยวัด เก็บมูลค่า"],
+    ["M1","เงินสด+เงินฝากกระแสรายวัน"],
+    ["M2","M1+เงินฝากออมทรัพย์/ประจำ"],
+    ["ธนาคารกลาง","กำหนดนโยบายการเงิน"],
+    ["อัตราเงินสดสำรอง","สัดส่วนเงินฝากที่ต้องสำรอง"],
+    ["ตลาดเงิน","ตราสารหนี้อายุสั้น สภาพคล่องสูง"],
+    ["ตลาดทุน","ตราสารอายุยาว หุ้น/พันธบัตร"],
+    ["การเงินตึงตัว","ลดปริมาณเงิน/ขึ้นดอกเบี้ย"],
+    ["การเงินผ่อนคลาย","เพิ่มปริมาณเงิน/ลดดอกเบี้ย"],
+    ["ดอกเบี้ยนโยบาย","ชี้นำต้นทุนการกู้"],
+    ["ส่วนลด/รีไฟแนนซ์","ปล่อยกู้แก่ธนาคารพาณิชย์"],
+    ["ตัวคูณเงินฝาก","การขยายตัวสินเชื่อทวีคูณ"],
+    ["งบดุลธนาคาร","สินทรัพย์=หนี้สิน+ทุน"],
+    ["เสถียรภาพการเงิน","ระบบดูดซับช็อกได้"],
+    ["อัตราแลกเปลี่ยน","ราคาของเงินหนึ่งต่ออีกสกุล"]
+  ],
+ 10: [
+    ["การค้าเสรี","กีดกันต่ำ แลกเปลี่ยนเสรี"],
+    ["ได้เปรียบเชิงเปรียบเทียบ","ผลิตสินค้าที่เสียโอกาสต่ำกว่า"],
+    ["อัตราแลกเปลี่ยนลอยตัว","ปล่อยให้ตลาดกำหนดค่าเงิน"],
+    ["อัตราแลกเปลี่ยนคงที่","ธนาคารกลางตรึงค่าเงิน"],
+    ["ดุลการชำระเงิน","บัญชีเดินสะพัด/ทุนและการเงิน"],
+    ["ภาษีนำเข้า","ภาษีสำหรับสินค้านำเข้า"],
+    ["โควตานำเข้า","กำหนดปริมาณนำเข้าขั้นสูงสุด"],
+    ["FTA","ความตกลงการค้าเสรี"],
+    ["การไหลเวียนทุน","การย้ายเงินทุนระหว่างประเทศ"],
+    ["บัญชีเดินสะพัด","สินค้า บริการ รายได้ โอนฝ่ายเดียว"],
+    ["บัญชีทุน/การเงิน","ลงทุนโดยตรง/พอร์ต เงินสำรอง"],
+    ["กีดกันทางการค้า","มาตรการภาษี/ไม่ใช่ภาษี"],
+    ["Impossible Trinity","การเงินอิสระ/อัตราแลกเปลี่ยน/ทุนเสรี เลือกได้สอง"],
+    ["อัตราแลกเปลี่ยนที่แท้จริง","อัตราแลกเปลี่ยนปรับด้วยระดับราคา"],
+    ["เงื่อนไขการค้า","อัตราส่วนราคาส่งออกต่อราคานำเข้า"]
+  ]
+};
 
-    const questionsPerLevel = 10;
-    const maxLevels = 3;
-    const maxIncorrectAnswers = 3;
+// ======= สร้างคำถาม 30 ข้อต่อบท (2 รูปแบบ/คู่คำ) =======
+function shuffleArray(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+function makeQuestionsFromPairs(pairs){
+  const out = [];
+  // แบบที่ 1: ถามนิยามของคำ
+  pairs.forEach(([term,def])=>{
+    const distractors = shuffleArray(pairs.filter(p=>p[1]!==def)).slice(0,3).map(p=>p[1]);
+    const choices = shuffleArray([def,...distractors]);
+    out.push({q:`ข้อใดคือความหมายของ “${term}”?`,choices,answer:choices.indexOf(def),explanation:`“${term}” หมายถึง ${def}`});
+  });
+  // แบบที่ 2: ให้นิยามแล้วถามคำ
+  pairs.forEach(([term,def])=>{
+    const distractors = shuffleArray(pairs.filter(p=>p[0]!==term)).slice(0,3).map(p=>p[0]);
+    const choices = shuffleArray([term,...distractors]);
+    out.push({q:`นิยามต่อไปนี้หมายถึงคำว่าอะไร: “${def}”`,choices,answer:choices.indexOf(term),explanation:`นิยามนี้ตรงกับ “${term}”`});
+  });
+  return out;
+}
 
-    let availableQuestions = [];
-    let questionsUsedInGame = [];
-    let currentQuestion = null;
-    let currentLevel = 1;
-    let questionsAnsweredInLevel = 0;
-    let correctAnswersInLevel = 0;
-    let incorrectAnswersInLevel = 0;
-    let consecutiveCorrect = 0;
+// เตรียมคลังคำถามสำหรับทั้ง 10 บท รวม 300 ข้อ เก็บไว้ในหน่วยความจำ
+const chapterQuestionBanks = {};
+for(let lvl=1; lvl<=maxLevels; lvl++){
+  chapterQuestionBanks[lvl] = makeQuestionsFromPairs(chapterTermDefs[lvl]);
+}
 
-    const introScreen = document.getElementById("introScreen");
-    const gameArea = document.getElementById("gameArea");
-    const startBtn = document.getElementById("startBtn");
-    const statusDiv = document.getElementById("status");
-    const questionBox = document.getElementById("questionBox");
-    const choicesBtns = document.querySelectorAll(".choice");
-    const explanationDiv = document.getElementById("explanation");
-    const nextBtn = document.getElementById("nextBtn");
-    const shareBtn = document.getElementById("shareBtn");
-    const restartBtn = document.getElementById("restartBtn");
-    
-    const correctSound = document.getElementById("correctSound");
-    const wrongSound = document.getElementById("wrongSound");
-    const levelUpSound = document.getElementById("levelUpSound");
-    const victorySound = document.getElementById("victorySound");
-    const failureSound = document.getElementById("failureSound");
+// ======= อ้างอิงองค์ประกอบ DOM =======
+const introScreen = document.getElementById("introScreen");
+const levelInfo = document.getElementById("levelInfo");
+const levelLabel = document.getElementById("levelLabel");
+const chapterName = document.getElementById("chapterName");
+const gameArea = document.getElementById("gameArea");
+const statusDiv = document.getElementById("status");
+const questionBox = document.getElementById("questionBox");
+const choicesBtns = document.querySelectorAll(".choice");
+const explanationDiv = document.getElementById("explanation");
+const nextBtn = document.getElementById("nextBtn");
+const shareBtn = document.getElementById("shareBtn");
+const restartBtn = document.getElementById("restartBtn");
 
-    // Fisher-Yates shuffle algorithm
-    function shuffleArray(array) {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+// เสียง (คง id และ src เดิม)
+const correctSound = document.getElementById("correctSound");
+const wrongSound = document.getElementById("wrongSound");
+const levelUpSound = document.getElementById("levelUpSound");
+const victorySound = document.getElementById("victorySound");
+const failureSound = document.getElementById("failureSound");
+[correctSound,wrongSound,levelUpSound,victorySound,failureSound].forEach(a=>a.load());
+
+// ======= สถานะเกม =======
+let currentLevel = 1;
+let availableQuestions = [];
+let currentQuestion = null;
+let questionsAnsweredInLevel = 0;
+let correctAnswersInLevel = 0;
+let incorrectAnswersInLevel = 0;
+let consecutiveCorrect = 0;
+
+// ปุ่มเริ่ม/ตัวเลือก/แชร์/รีสตาร์ท/ถัดไป
+document.getElementById("startBtn").addEventListener("click", initializeGame);
+choicesBtns.forEach((btn,idx)=>btn.addEventListener("click",()=>checkAnswer(idx)));
+shareBtn.addEventListener("click", shareScore);
+restartBtn.addEventListener("click", ()=>location.reload());
+document.addEventListener("keydown",(e)=>{
+  if(["1","2","3","4"].includes(e.key)){
+    const i = parseInt(e.key,10)-1;
+    if(i>=0 && i<4 && !Array.from(choicesBtns).every(b=>b.disabled)){ checkAnswer(i); }
+  }
+});
+
+// ======= ฟังก์ชันเกม (คงกติกาเดิม) =======
+function initializeGame(){
+  introScreen.classList.add("hidden");
+  gameArea.classList.remove("hidden");
+  levelInfo.classList.remove("hidden");
+  currentLevel = 1;
+  startLevel();
+}
+function startLevel(){
+  levelLabel.textContent = currentLevel;
+  chapterName.textContent = ""; // **แก้ไข: ซ่อนชื่อบท**
+  questionsAnsweredInLevel = 0;
+  correctAnswersInLevel = 0;
+  incorrectAnswersInLevel = 0;
+  consecutiveCorrect = 0;
+  // สุ่ม 10 ข้อจากคลังบทนี้ (คลังเต็ม 30 ข้อ)
+  const bank = shuffleArray(chapterQuestionBanks[currentLevel]);
+  availableQuestions = bank.slice(0, questionsPerLevel);
+  // แสดงปุ่มตัวเลือก
+  choicesBtns.forEach(b=>{ b.classList.remove("hidden"); b.disabled=false; b.classList.remove("correct","incorrect"); });
+  loadQuestion();
+  updateStatus();
+}
+function updateStatus(){
+  statusDiv.textContent = `ตอบถูก: ${correctAnswersInLevel}/${questionsPerLevel} | ตอบผิด: ${incorrectAnswersInLevel}/${maxIncorrectAnswers}`;
+}
+function loadQuestion(){
+  if(questionsAnsweredInLevel>=questionsPerLevel){ summarizeLevel(); return; }
+  currentQuestion = availableQuestions[questionsAnsweredInLevel];
+  const shuffled = shuffleArray(currentQuestion.choices);
+  const answerText = currentQuestion.choices[currentQuestion.answer];
+  const newAnswerIndex = shuffled.indexOf(answerText);
+  currentQuestion._shuffled = shuffled;
+  currentQuestion._newAnswer = newAnswerIndex;
+
+  questionBox.textContent = currentQuestion.q;
+  choicesBtns.forEach((btn,i)=>{
+    btn.textContent = shuffled[i];
+    btn.classList.remove("correct","incorrect");
+    btn.disabled = false;
+  });
+  explanationDiv.textContent = "";
+  nextBtn.classList.add("hidden");
+  shareBtn.classList.add("hidden");
+  restartBtn.classList.add("hidden");
+}
+function checkAnswer(selectedIndex){
+  choicesBtns.forEach(b=>b.disabled=true);
+  questionsAnsweredInLevel++;
+  const isCorrect = (selectedIndex===currentQuestion._newAnswer);
+  if(isCorrect){
+    correctAnswersInLevel++;
+    consecutiveCorrect++;
+    choicesBtns[selectedIndex].classList.add("correct");
+    explanationDiv.textContent = `${consecutiveCorrect===1?"ถูกต้อง!":"เยี่ยมมาก!"} ${currentQuestion.explanation||""}`;
+    try{correctSound.play();}catch(_){}
+  }else{
+    incorrectAnswersInLevel++;
+    consecutiveCorrect = 0;
+    choicesBtns[selectedIndex].classList.add("incorrect");
+    choicesBtns[currentQuestion._newAnswer].classList.add("correct");
+    const answerText = currentQuestion._shuffled[currentQuestion._newAnswer];
+    explanationDiv.textContent = `ยังไม่ถูก คำตอบที่ถูกคือ: ${answerText}. ${currentQuestion.explanation||""}`;
+    try{wrongSound.play();}catch(_){}
+  }
+  updateStatus();
+  if(incorrectAnswersInLevel>=maxIncorrectAnswers){
+    setTimeout(()=>endGame(false),800);
+  }else if(questionsAnsweredInLevel===questionsPerLevel){
+    setTimeout(()=>summarizeLevel(),1500); // เพิ่มเวลาเพื่อให้ผู้เล่นได้อ่านเฉลย
+  }else{
+    // เปลี่ยนจากแสดงปุ่ม "ถัดไป" เป็นการโหลดข้อถัดไปอัตโนมัติ
+    setTimeout(()=>loadQuestion(),1500); // เพิ่มเวลาเพื่อให้ผู้เล่นได้อ่านเฉลย
+  }
+}
+function summarizeLevel(){
+  choicesBtns.forEach(b=>b.disabled=true);
+  let summaryText="";
+  if(correctAnswersInLevel>=questionsPerLevel){
+    questionBox.textContent = `ผ่านเลเวล ${currentLevel}! 🎉`;
+    summaryText = `คุณตอบถูก ${correctAnswersInLevel} ข้อ จาก ${questionsPerLevel} ข้อในเลเวลนี้!`;
+    try{levelUpSound.play();}catch(_){}
+    if(currentLevel<maxLevels){
+      setTimeout(()=>nextLevel(),1200);
+    }else{
+      setTimeout(()=>endGame(true),1200);
     }
-
-    function initializeGame() {
-        introScreen.classList.add("hidden");
-        gameArea.classList.remove("hidden");
-        currentLevel = 1;
-        questionsUsedInGame = []; // Reset used questions for a new game
-        startLevel();
-    }
-
-    function startLevel() {
-        const remainingQuestions = allQuestions.filter(q => !questionsUsedInGame.includes(q));
-        if (remainingQuestions.length < questionsPerLevel) {
-            endGame(false, "คำถามไม่พอสำหรับเลเวลนี้");
-            return;
-        }
-
-        const shuffledQuestions = shuffleArray(remainingQuestions);
-        availableQuestions = shuffledQuestions.slice(0, questionsPerLevel);
-        
-        // Add new questions to the 'used' list
-        questionsUsedInGame = questionsUsedInGame.concat(availableQuestions);
-
-        questionsAnsweredInLevel = 0;
-        correctAnswersInLevel = 0;
-        incorrectAnswersInLevel = 0;
-        consecutiveCorrect = 0;
-        
-        loadQuestion();
-        updateStatus();
-    }
-
-    function updateStatus() {
-        statusDiv.textContent = `เลเวล: ${currentLevel} | ตอบถูก: ${correctAnswersInLevel}/10 | ตอบผิด: ${incorrectAnswersInLevel}/${maxIncorrectAnswers}`;
-    }
-
-    function loadQuestion() {
-        if (questionsAnsweredInLevel >= questionsPerLevel) {
-            summarizeLevel();
-            return;
-        }
-
-        currentQuestion = availableQuestions.pop();
-        const shuffledChoices = shuffleArray([...currentQuestion.choices]);
-        const newAnswerIndex = shuffledChoices.indexOf(currentQuestion.choices[currentQuestion.answer]);
-        currentQuestion.shuffledChoices = shuffledChoices;
-        currentQuestion.newAnswer = newAnswerIndex;
-
-        questionBox.textContent = currentQuestion.q;
-        choicesBtns.forEach((btn, index) => {
-            btn.textContent = currentQuestion.shuffledChoices[index];
-            btn.classList.remove("hidden", "correct", "incorrect");
-            btn.disabled = false;
-        });
-        explanationDiv.textContent = "";
-        nextBtn.classList.add("hidden");
-        shareBtn.classList.add("hidden");
-        restartBtn.classList.add("hidden");
-    }
-
-    function checkAnswer(selectedAnswer) {
-        choicesBtns.forEach(b => b.disabled = true);
-        
-        const selectedBtn = choicesBtns[selectedAnswer];
-        questionsAnsweredInLevel++;
-
-        if (selectedAnswer === currentQuestion.newAnswer) {
-            correctAnswersInLevel++;
-            consecutiveCorrect++;
-            selectedBtn.classList.add("correct");
-            
-            const message = correctMessages[Math.min(consecutiveCorrect - 1, correctMessages.length - 1)];
-            explanationDiv.textContent = `${message} ${currentQuestion.explanation || ""}`;
-            correctSound.play();
-        } else {
-            incorrectAnswersInLevel++;
-            consecutiveCorrect = 0;
-            selectedBtn.classList.add("incorrect");
-            choicesBtns[currentQuestion.newAnswer].classList.add("correct");
-            
-            const randomWrongMessage = wrongMessages[Math.floor(Math.random() * wrongMessages.length)];
-            explanationDiv.textContent = `${randomWrongMessage} คำตอบที่ถูกต้องคือ: ${currentQuestion.shuffledChoices[currentQuestion.newAnswer]}. ${currentQuestion.explanation || ""}`;
-            wrongSound.play();
-        }
-
-        updateStatus();
-
-        if (incorrectAnswersInLevel >= maxIncorrectAnswers) {
-            setTimeout(() => endGame(false), 1500);
-        } else if (questionsAnsweredInLevel === questionsPerLevel) {
-            setTimeout(() => summarizeLevel(), 1500);
-        } else {
-            setTimeout(() => loadQuestion(), 2000); 
-        }
-    }
-
-    function summarizeLevel() {
-        choicesBtns.forEach(b => b.classList.add("hidden"));
-        
-        let summaryText;
-        if (correctAnswersInLevel >= questionsPerLevel) {
-            questionBox.textContent = `ผ่านเลเวล ${currentLevel}! 🎉`;
-            summaryText = `คุณตอบถูก ${correctAnswersInLevel} ข้อ จาก 10 ข้อในเลเวลนี้!`;
-            levelUpSound.play();
-            if (currentLevel < maxLevels) {
-                 setTimeout(() => nextLevel(), 3000);
-            } else {
-                 setTimeout(() => endGame(true), 3000);
-            }
-        } else {
-            questionBox.textContent = `ไม่ผ่าน! เกมโอเวอร์`;
-            summaryText = `ในเลเวลนี้ คุณตอบถูก ${correctAnswersInLevel} ข้อ และตอบผิด ${incorrectAnswersInLevel} ข้อ`;
-            failureSound.play();
-            setTimeout(() => endGame(false), 3000);
-        }
-        explanationDiv.textContent = summaryText;
-        restartBtn.classList.remove("hidden");
-        shareBtn.classList.remove("hidden");
-    }
-
-    function nextLevel() {
-        currentLevel++;
-        questionBox.textContent = `เตรียมตัวสำหรับเลเวล ${currentLevel}...`;
-        explanationDiv.textContent = "";
-        setTimeout(() => startLevel(), 1500);
-    }
-
-    function endGame(isWin) {
-        choicesBtns.forEach(b => b.classList.add("hidden"));
-        nextBtn.classList.add("hidden");
-        restartBtn.classList.remove("hidden");
-        shareBtn.classList.remove("hidden");
-        
-        let finalMessage;
-        if (isWin) {
-            finalMessage = `ยินดีด้วย! คุณตอบคำถามครบทุกเลเวลและชนะเกมแล้ว! 🏆`;
-            victorySound.play();
-        } else {
-            finalMessage = `เกมโอเวอร์! คุณไปถึงเลเวล ${currentLevel} 😥`;
-            failureSound.play();
-        }
-        questionBox.textContent = finalMessage;
-        explanationDiv.textContent = "";
-    }
-    
-    function shareScore() {
-        const shareText = `ฉันเล่นเกมตอบคำถามเศรษฐศาสตร์ และไปได้ถึงเลเวล ${currentLevel}! ลองมาแข่งกันดูสิ!`;
-
-        const shareData = {
-            title: 'เกมตอบคำถามเศรษฐศาสตร์',
-            text: shareText,
-            url: window.location.href
-        };
-
-        if (navigator.share) {
-            navigator.share(shareData)
-                .then(() => console.log('คะแนนถูกแชร์เรียบร้อย'))
-                .catch((error) => console.log('การแชร์ล้มเหลว', error));
-        } else {
-            alert(shareText);
-        }
-    }
-
-    startBtn.addEventListener("click", initializeGame);
-    choicesBtns.forEach((btn, index) => {
-        btn.addEventListener("click", () => checkAnswer(index));
-    });
-    shareBtn.addEventListener("click", shareScore);
-    restartBtn.addEventListener("click", () => {
-        location.reload(); 
-    });
-
+  }else{
+    questionBox.textContent = `ไม่ผ่าน! เกมโอเวอร์`;
+    summaryText = `ในเลเวลนี้ คุณตอบถูก ${correctAnswersInLevel} ข้อ และตอบผิด ${incorrectAnswersInLevel} ข้อ`;
+    try{failureSound.play();}catch(_){}
+    setTimeout(()=>endGame(false),1200);
+  }
+  explanationDiv.textContent = summaryText;
+  shareBtn.classList.remove("hidden");
+  restartBtn.classList.remove("hidden");
+  nextBtn.classList.add("hidden");
+}
+function nextLevel(){
+  currentLevel++;
+  questionBox.textContent = `เตรียมตัวสำหรับเลเวล ${currentLevel}.`;
+  explanationDiv.textContent = "";
+  setTimeout(()=>startLevel(),800);
+}
+function endGame(isWin){
+  choicesBtns.forEach(b=>b.classList.add("hidden"));
+  nextBtn.classList.add("hidden");
+  restartBtn.classList.remove("hidden");
+  shareBtn.classList.remove("hidden");
+  let finalMessage="";
+  if(isWin){
+    finalMessage = `ยินดีด้วย! คุณตอบคำถามครบทุกเลเวลและชนะเกมแล้ว! 🏆`;
+    try{victorySound.play();}catch(_){}
+  }else{
+    finalMessage = `เกมโอเวอร์! คุณไปถึงเลเวล ${currentLevel} 😥`;
+    try{failureSound.play();}catch(_){}
+  }
+  questionBox.textContent = finalMessage;
+  explanationDiv.textContent = "";
+}
+function shareScore(){
+  const shareText = `ฉันเล่นเกมตอบคำถามเศรษฐศาสตร์ และไปได้ถึงเลเวล ${currentLevel}!`;
+  const shareData = {title:'เกมตอบคำถามเศรษฐศาสตร์', text:shareText, url:window.location.href};
+  if(navigator.share){ navigator.share(shareData).catch(()=>{}); } else { alert(shareText); }
+}
 </script>
 
 </body>
